@@ -12,11 +12,13 @@ public class User
         int midpointX = Console.WindowWidth / 2;
         string usernameQuery = "What is your name..?";
         string luckyNumberQuery = "What is your lucky number?";
+        string numericErrorString = "Input must be less than 3 digits";
         Console.SetCursorPosition(midpointX - (usernameQuery.Length - 2), Console.WindowHeight - 3);
-        string username = Menu.TextInput(usernameQuery);
+        int promptX = Renderer.midpointX; int promptY = Renderer.midpointY + 7;
+        string username = Menu.TextInput(promptX,promptY,usernameQuery,1,8);
         int clearTop = Console.GetCursorPosition().Item2;
         Renderer.ClearLine(clearTop);
-        int luckynumber = Menu.NumericInput(luckyNumberQuery);
+        int luckynumber = Menu.NumericInput(luckyNumberQuery,numericErrorString,promptX,promptY,2,ConsoleColor.Green,ConsoleColor.DarkGreen);
         Renderer.ClearLine(clearTop);
         User newUser = new User(username, luckynumber, 0);
 
@@ -35,7 +37,7 @@ public class User
     public void WriteSaveFile()
     {
         string data = GenerateUserData();
-        File.WriteAllText(CWD + $"/{Name}{LuckyNumber}.txt", data);
+        File.WriteAllText(CWD + "/userdata" + $"/{Name}{LuckyNumber}.txt", data);
     }
     public static User CreateUserObject(string path)
     {

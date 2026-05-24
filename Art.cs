@@ -104,25 +104,4 @@ public static string MenuArt =
 @"\' / . / /____/..\"+"\n"+
 @" \/___/  \'  '\  /"+"\n"+
 @"          \'__'\/"+"\n";
-
-    public static int DrawLine(int left, int top, int length, 
-    char symbol1, char symbol2, ConsoleColor c1, ConsoleColor c2)
-    {
-        string line = new string('_',length);
-        Console.SetCursorPosition(left, top);
-        for(int j = 0; j < length; j++)
-        {
-            if(j % 2 == 0)
-            {
-                Console.ForegroundColor = c1;
-                Console.Write(symbol1);
-            }
-            else
-            {
-                Console.ForegroundColor = c2;
-                Console.Write(symbol2);
-            }
-        } 
-        return top;
-    }
 }

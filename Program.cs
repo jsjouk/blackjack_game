@@ -88,7 +88,7 @@
         ConsoleKeyInfo userInput;
         selectionIndex = lastSelected;
         Console.SetCursorPosition(0, Renderer.screenBottom - 3);
-        bool split = (int)UserHand[0].CardRank == ((int)UserHand[1].CardRank);
+        bool split = (int)UserHand[0].Evaluate() == ((int)UserHand[1].Evaluate());
         bool insurance = DealerHand[0].CardRank == Card.Rank.Ace;
         List<Input> actionsAvailable = [];
         foreach(Input input in Enum.GetValues(typeof(Input)))
@@ -156,9 +156,9 @@
         int titleTop = 1;
         Renderer.DrawArt(titleLeft, titleTop, 2, Art.Logo2, ConsoleColor.Green, ConsoleColor.DarkGreen);
 
-        Menu.AwaitKeystroke();
+        Menu.AwaitKeystroke("[PRESS ANY KEY]",Renderer.midpointX,Console.WindowHeight - 3,true,ConsoleColor.Green,ConsoleColor.DarkGreen);
     
-        if(Menu.BinaryMenu(true,"MAIN MENU","New file"," Load file", Renderer.centerpointQ1.Item1, Renderer.midpointY, ConsoleColor.Green, ConsoleColor.DarkGreen))
+        if(!Menu.BinaryMenu(true,"MAIN MENU","New file"," Load file", Renderer.centerpointQ1.Item1, Renderer.midpointY, ConsoleColor.Green, ConsoleColor.DarkGreen))
         {
             Renderer.ClearLine(Console.GetCursorPosition().Item2);
             User newUser = User.CreateUser();

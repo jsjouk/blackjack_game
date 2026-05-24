@@ -40,3 +40,4 @@
 /Users/juliansjouken/Desktop/blackjack/src/obj/Debug/net10.0/messing.pdb
 /Users/juliansjouken/Desktop/blackjack/src/obj/Debug/net10.0/messing.genruntimeconfig.cache
 /Users/juliansjouken/Desktop/blackjack/src/obj/Debug/net10.0/ref/messing.dll
+/Users/juliansjouken/Desktop/blackjack/src/obj/Debug/net10.0/messing.sourcelink.json

@@ -12,7 +12,7 @@ public class Card
     }
     public override string ToString()
     {
-        string? rankStr = null;
+        string rankStr ;
         switch (Enum.GetName(CardRank))
         {
             case "Ace": rankStr = "A"; break;
@@ -22,13 +22,14 @@ public class Card
             case "Ten": rankStr = "T"; break;
             default: rankStr = ((int)CardRank).ToString(); break;
         }
-        string? suitStr = null;
+        string suitStr;
         switch (Enum.GetName(CardSuit))
         {
             case "Hearts": suitStr = "♥"; break;
             case "Diamonds": suitStr = "♦ "; break;
             case "Clubs": suitStr = "♣"; break;
             case "Spades": suitStr = "♠"; break;
+            default: suitStr = ""; break;
         }
         return rankStr + suitStr;
     }
