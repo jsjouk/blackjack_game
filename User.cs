@@ -20,13 +20,9 @@ public class User
         int luckynumber = Menu.NumericInput(luckyNumberQuery,numericErrorString,promptX,promptY,2,ConsoleColor.Green,ConsoleColor.DarkGreen);
         Renderer.ClearLine(promptY);
         User newUser = new User(username, luckynumber, 0);
-
         string confirmationString = $"CREATED NEW USER: {newUser.Name}\nLUCKY NUMBER: {newUser.LuckyNumber}\nCHIP BALANCE: {newUser.Chips}";
-
         //Renderer.WriteCenterText(confirmationString, Renderer.screenBottom - 2,)
-
         newUser.WriteSaveFile();
-
         return newUser;
     }
     public string GenerateUserData()

@@ -51,7 +51,6 @@ public class Menu
         while(keyStroke.Key != ConsoleKey.Enter);
         return selectedIndex == 0;
     }
-    
     public static string TextInput(int left, int top, string text, int min, int max)
     {
         while (true)
@@ -215,20 +214,13 @@ public class Menu
             keyStroke = Console.ReadKey(true);
                 if(keyStroke.Key == ConsoleKey.UpArrow && selectedY != 0)
                 {
-                    
                         selectedY--;
                         Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
-                    
-                    
                 }
                 if(keyStroke.Key == ConsoleKey.DownArrow && selectedY != arrangedFiles[selectedX].Count() - 1)
                 {
-                    
                         selectedY++;
                         Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
-                    
-                    
-                    
                 }
                 if(keyStroke.Key == ConsoleKey.RightArrow && selectedX != arrangedFiles.Count() - 1)
                 {
@@ -241,14 +233,11 @@ public class Menu
                         selectedX++;
                         Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
                     }
-                    
                 }
                 if(keyStroke.Key == ConsoleKey.LeftArrow && selectedX != 0)
                 {
                         selectedX--;
                         Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
-                    
-                    
                 }
                 if(keyStroke.Key == ConsoleKey.Enter)
                 {

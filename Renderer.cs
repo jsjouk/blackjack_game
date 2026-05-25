@@ -7,7 +7,6 @@ internal class Renderer
     internal static (int,int) centerpointQ3 = (midpointX / 2, (int)(midpointY * 1.5));
     internal static (int,int) centerpointQ4 = ((int)(midpointX * 1.5), (int)(midpointY * 1.5));
 
-
     public static void RefreshDisplay(LoadedUser player, int userScore, int dealerScore)
     {
         Console.Clear();
