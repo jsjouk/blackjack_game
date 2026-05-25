@@ -158,9 +158,8 @@
 
         Menu.AwaitKeystroke("[PRESS ANY KEY]",Renderer.midpointX,Console.WindowHeight - 3,true,ConsoleColor.Green,ConsoleColor.DarkGreen);
     
-        if(!Menu.BinaryMenu(true,"MAIN MENU","New file"," Load file", Renderer.centerpointQ1.Item1, Renderer.midpointY, ConsoleColor.Green, ConsoleColor.DarkGreen))
+        if(Menu.BinaryMenu(true,"MAIN MENU","New file"," Load file", Renderer.centerpointQ1.Item1, Renderer.midpointY, ConsoleColor.Green, ConsoleColor.DarkGreen))
         {
-            Renderer.ClearLine(Console.GetCursorPosition().Item2);
             User newUser = User.CreateUser();
             player = new LoadedUser(newUser.Name, newUser.LuckyNumber, newUser.Chips);
         }

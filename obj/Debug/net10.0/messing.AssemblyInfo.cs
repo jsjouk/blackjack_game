@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("messing")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd4ac853f17a51b9ad061166dcaddd38ced14beb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ee7fb8d789a830c407118d7a9ee16c61eb5c776a")]
 [assembly: System.Reflection.AssemblyProductAttribute("messing")]
 [assembly: System.Reflection.AssemblyTitleAttribute("messing")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

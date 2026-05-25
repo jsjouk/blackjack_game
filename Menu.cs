@@ -175,9 +175,10 @@ public class Menu
         Console.SetCursorPosition(0, dividerHeight); //divider line
         Renderer.DrawLine(0, dividerHeight,Console.WindowWidth,'-','-',ConsoleColor.Magenta, ConsoleColor.DarkMagenta);
         Console.Write("\n");
-        string path = User.CWD + "/userdata";
+        string path = Path.Combine(User.CWD, "userdata");
         string[] filePaths = Directory.GetFiles(path);
-        List<string> paths = filePaths.ToList(); paths.Remove(path + "/.DS_Store");
+        string pathToRemove = Path.Combine(path,".DS_Store");
+        List<string> paths = filePaths.ToList(); paths.Remove(pathToRemove);
         List<string[]> arrangedFiles = new();
         string[] fullColumn = new string[5];
         bool subColumnFiles = paths.Count() % 5 != 0;
