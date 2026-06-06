@@ -1,117 +1,76 @@
-﻿class Program
+﻿using System.ComponentModel.Design;
+
+class Program
 {
     internal static string CWD = Directory.GetCurrentDirectory();
+    internal static string path = Path.Combine(CWD ,"userdata");
+
+    internal enum Input{Hit, Stand, DoubleDown, Split, Insurance}
+    enum Outcome{Blackjack,Win,Tie,Outdealt,Bust};
+
     internal static int LastSelected = 0;
-    public static List<Card> UserHand = new List<Card>();
-    public static List<Card> DealerHand = new List<Card>();
-    public enum Input{Hit, Stand, DoubleDown, Split, Insurance}
+    internal static bool IsPlayerDone = false;
+    internal static List<Hand> UserHands = new ();
+    internal static Hand DealerHand = new();
+    static Hand.Status DealerStatus = Hand.Status.Null;
+    
     static int balance;
     static int bet;
+    static int numberOfHands = 1;
     static int userScore;
     static int dealerScore;
-    static bool firstDeal;
-    public static string path = CWD + "/userdata";
+    static bool firstInput;
+
     static void Main()
     {
         LoadedUser player = StartUp();
         balance = player.Chips;
-        Renderer.RefreshDisplay(player,userScore,dealerScore);
-        static void HandLoop(LoadedUser player)
+        ConsoleKeyInfo keyPress;
+        do
         {
-            firstDeal = true;
-            while (true)
-            {
-                if (firstDeal) //distribute cards to set up first deal of the hand
-                {
-                    UserHand.Add(Shoe.DealCard());
-                    DealerHand.Add(Shoe.DealCard());
-                    UserHand.Add(Shoe.DealCard());
-                    DealerHand.Add(Shoe.DealCard());
-                    firstDeal = false;
-                }
-                userScore = Card.EvaluateHand(UserHand);
-                dealerScore = Card.EvaluateHand(DealerHand); 
-                Renderer.RefreshDisplay(player,userScore,dealerScore);
-                switch (GetUserDecision(LastSelected))
-                {
-                    case Input.Hit: 
-                    {
-                        Renderer.WriteCenterText("hit",Renderer.midpointY,ConsoleColor.Magenta,ConsoleColor.DarkMagenta);
-                        break;
-                    }
-                    
-                    case Input.Stand:
-                    {
-                        Renderer.WriteCenterText("stand",Renderer.midpointY,ConsoleColor.Cyan,ConsoleColor.DarkCyan);
-                        break;
-                    }
-                    case Input.DoubleDown:
-                    {
-                        Renderer.WriteCenterText("doubledown",Renderer.midpointY,ConsoleColor.Red,ConsoleColor.DarkRed);
-                        break;
-                    }
-                    case Input.Split:
-                    {
-                        Renderer.WriteCenterText("split",Renderer.midpointY,ConsoleColor.Green,ConsoleColor.DarkGreen);
-                        break;
-                    }
-                    case Input.Insurance:
-                    {
-                        Renderer.WriteCenterText("insurance",Renderer.midpointY,ConsoleColor.Yellow,ConsoleColor.DarkYellow);
-                        break;        
-                    }
-                }
-                Console.ReadLine();
-            }
-        }   
-        HandLoop(player);
-        while (true)
-        {
-            ConsoleKeyInfo keyPress;
-            keyPress = Console.ReadKey(true);
-            string[] skullLines = Art.Skull.Split("\n");
-            int skullOffsetX = skullLines[0].Length / 2;
-            int skullOffsetY = skullLines.Count() / 2;
-            if(keyPress.Key == ConsoleKey.Escape)
-            {
-                Console.Clear();
-                player.Chips -= 2;
-                player.WriteSaveFile();
-                Renderer.DrawArt(Renderer.midpointX - skullOffsetX, Renderer.midpointY - skullOffsetY, 2, Art.Skull, ConsoleColor.Red, ConsoleColor.DarkRed);
-                Environment.Exit(0);
-            }
+            HandLoop(player);
         }
+        while(true);
     }
-    static Input GetUserDecision(int lastSelected)
+    static Input GetUserDecision(Hand hand)
     {
         int selectionIndex;
         ConsoleKeyInfo userInput;
-        selectionIndex = lastSelected;
+        selectionIndex = LastSelected;
         Console.SetCursorPosition(0, Renderer.screenBottom - 3);
-        bool split = (int)UserHand[0].Evaluate() == ((int)UserHand[1].Evaluate());
-        bool insurance = DealerHand[0].CardRank == Card.Rank.Ace;
+        bool split = hand.Cards[0].Evaluate() == hand.Cards[1].Evaluate();
+        bool insurance = DealerHand.Cards[0].CardRank == Card.Rank.Ace && firstInput == true;
+        bool blackjack = hand.Evaluate() == 21 && DealerHand.Evaluate() != 21 && firstInput == true;
         List<Input> actionsAvailable = [];
-        foreach(Input input in Enum.GetValues(typeof(Input)))
+        foreach(Input _ in Enum.GetValues(typeof(Input)))
         {
-            if(!split && input == Input.Split)
+            if(!split && _ == Input.Split)
             {
                 
             }
-            else if(!insurance && input == Input.Insurance)
+            else if(!insurance && _ == Input.Insurance)
+            {
+                
+            }
+            else if(!firstInput && _ == Input.DoubleDown)
+            {
+                
+            }
+            else if (insurance && hand.Insured == true)
             {
                 
             }
             else
             {
-                actionsAvailable.Add(input);
+                actionsAvailable.Add(_);
             }
         }
         string menuText = (split, insurance)switch
         {
-            (true, true)=> Renderer.GetInputString(true, true, lastSelected, actionsAvailable),
-            (true, false)=> Renderer.GetInputString(true, false, lastSelected, actionsAvailable),
-            (false, true)=> Renderer.GetInputString(false, true, lastSelected, actionsAvailable),
-            _=> Renderer.GetInputString(false, false, lastSelected, actionsAvailable)
+            (true, true)=> Renderer.GetInputString(blackjack,selectionIndex, actionsAvailable),
+            (true, false)=> Renderer.GetInputString(blackjack,selectionIndex, actionsAvailable),
+            (false, true)=> Renderer.GetInputString(blackjack,selectionIndex, actionsAvailable),
+            _=> Renderer.GetInputString(blackjack,selectionIndex, actionsAvailable)
         };
         Renderer.WriteCenterText(menuText, Renderer.screenBottom - 2, ConsoleColor.Magenta, ConsoleColor.DarkMagenta);
         do
@@ -123,7 +82,7 @@
                 selectionIndex--;
                 int actionMagicNumber = (int)actionsAvailable[selectionIndex];
                 Renderer.ClearInputGUI();
-                string userGUI = Renderer.GetInputString(split, insurance, actionMagicNumber,actionsAvailable);
+                string userGUI = Renderer.GetInputString(blackjack, actionMagicNumber,actionsAvailable);
                 Renderer.WriteCenterText(userGUI, Renderer.screenBottom - 2, ConsoleColor.Magenta, ConsoleColor.DarkMagenta);
             }
             if(userInput.Key == ConsoleKey.RightArrow && selectionIndex < actionsAvailable.Count() - 1)
@@ -132,12 +91,12 @@
                 selectionIndex++;
                 int actionMagicNumber = (int)actionsAvailable[selectionIndex];
                 Renderer.ClearInputGUI();
-                string userGUI = Renderer.GetInputString(split, insurance, actionMagicNumber,actionsAvailable);
+                string userGUI = Renderer.GetInputString(blackjack, actionMagicNumber,actionsAvailable);
                 Renderer.WriteCenterText(userGUI, Renderer.screenBottom - 2, ConsoleColor.Magenta, ConsoleColor.DarkMagenta);
             }
         }
         while(userInput.Key != ConsoleKey.Enter);
-        Program.LastSelected = selectionIndex;
+        LastSelected = selectionIndex;
         return actionsAvailable[selectionIndex];
     }
     static LoadedUser StartUp()
@@ -170,5 +129,150 @@
             Console.Clear();
         }
         return player;
+    }
+    static void CleanUp()
+    {
+        UserHands.Clear();
+        DealerHand.Cards.Clear();
+    }
+    static Outcome GetOutcome(Hand player, Hand dealer)
+    {
+        if(player._Status == Hand.Status.Bust) // check for busting first so that you cannot win with a 25 vs a 21 for example
+        {
+            return Outcome.Bust;
+        }
+        if(player.Evaluate() > dealer.Evaluate()) // then a regular win
+        {
+            if(player._Status == Hand.Status.Blackjack)
+            {
+                return Outcome.Blackjack;
+            }
+            return Outcome.Win;
+        }
+        if(player.Evaluate() == dealer.Evaluate()) // checking for ties in score first
+        {
+            if(player._Status == Hand.Status.Blackjack && dealer._Status != Hand.Status.Blackjack) // tie breaker
+            {
+                return Outcome.Blackjack;
+            }
+            else if(player._Status != Hand.Status.Blackjack && dealer._Status == Hand.Status.Blackjack)
+            {
+                return Outcome.Outdealt;
+            }
+            return Outcome.Tie;
+        }
+        if(player._Status != Hand.Status.Bust && dealer._Status == Hand.Status.Bust)
+        {
+            return Outcome.Win;
+        }
+        return Outcome.Outdealt;
+    }
+
+    static void HandLoop(LoadedUser player) // blackjack exclusive logic
+    {
+        IsPlayerDone = false;
+        for(int i = 0; i < numberOfHands; i++) // first round of dealing to the player
+        {
+            Hand thisHand = new Hand();
+            thisHand.Cards.Add(Shoe.DealCard());
+            UserHands.Add(thisHand);
+        }
+        DealerHand.Cards.Add(Shoe.DealCard()); // dealer's face up card
+        foreach(Hand hand in UserHands) // second round of dealing to the player
+        {
+            hand.Cards.Add(Shoe.DealCard());
+        }
+        DealerHand.Cards.Add(Shoe.DealCard()); // dealer's face down card
+        int handSelected = 0;
+        userScore = UserHands[handSelected].Evaluate();
+        dealerScore = DealerHand.Cards[0].Evaluate();
+        Renderer.RefreshDisplay(player,userScore,dealerScore,handSelected);    
+        foreach(Hand hand in UserHands) // handling the player's turn for each of their bets
+        {
+            IsPlayerDone = false;
+            firstInput = true;
+            handSelected = UserHands.IndexOf(hand);
+            while (hand._Status is not(Hand.Status.Stand or Hand.Status.Bust)) 
+            {
+                Input selectedAction = GetUserDecision(hand);
+                if(hand.Evaluate() == 21)
+                {
+                    break;
+                }
+                if(selectedAction == Input.Hit || selectedAction == Input.DoubleDown) 
+                {
+                    firstInput = false;
+                    hand._Status = Hand.Status.Draw;
+                    hand.Cards.Add(Shoe.DealCard());
+                }
+                if(selectedAction == Input.Stand)
+                {
+                    firstInput = false;
+                    hand._Status = Hand.Status.Stand;
+                }
+                if(selectedAction == Input.Insurance && hand.Insured == false)
+                {
+                    hand.Insure();
+                }
+                
+                userScore = hand.Evaluate();
+                Renderer.RefreshDisplay(player,userScore,dealerScore,handSelected);
+
+
+                Renderer.WriteCenterText(selectedAction.ToString(),Console.WindowHeight-2,ConsoleColor.Red,ConsoleColor.DarkRed);
+                Console.ReadLine();
+                if(selectedAction == Input.DoubleDown)
+                {
+                    break;
+                }
+            }
+        }
+        IsPlayerDone = true;
+        int dealerDraws = 0;
+        while(true) // dealer's turn
+        {
+            DealerStatus = DealerHand.GetStatus();
+            if(DealerStatus is Hand.Status.Stand or Hand.Status.Max)
+            {
+                dealerScore = DealerHand.Evaluate();
+                Thread.Sleep(350);
+                Renderer.RefreshDisplay(player,userScore,dealerScore,0);
+                break;
+            }
+            else if(DealerStatus is Hand.Status.Draw)
+            {
+                if(dealerDraws == 0)
+                {
+                    dealerScore = DealerHand.Evaluate();
+                    Renderer.RefreshDisplay(player,userScore,dealerScore,0);
+                    Thread.Sleep(350);
+                }
+                DealerHand.Cards.Add(Shoe.DealCard());
+                dealerDraws++;
+                dealerScore = DealerHand.Evaluate();
+                Thread.Sleep(500);
+                Renderer.RefreshDisplay(player,userScore,dealerScore,0);
+            }
+            else if(DealerStatus is Hand.Status.Bust)
+            {
+                dealerScore = DealerHand.Evaluate();
+                Thread.Sleep(500);
+                Renderer.RefreshDisplay(player,userScore,dealerScore,0);
+                break;
+            }
+            else
+            {
+                dealerScore = DealerHand.Evaluate();
+                Thread.Sleep(500);
+                Renderer.RefreshDisplay(player,userScore,dealerScore,0);
+            }
+        }
+        foreach(Hand hand in UserHands)
+        {
+            Outcome result = GetOutcome(hand,DealerHand);
+            Renderer.WriteCenterText(result.ToString(),Renderer.midpointY,ConsoleColor.Yellow,ConsoleColor.DarkYellow);
+            Console.ReadLine();
+        }
+        CleanUp();
     }
 }                                       

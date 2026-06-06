@@ -209,43 +209,62 @@ public class Menu
         ConsoleKeyInfo keyStroke;
         int selectedX = 0;
         int selectedY = 0;
+        string selectedPath = Path.Combine(path,arrangedFiles[selectedX][selectedY]); selectedPath += ".txt";
+        string previewString = "[ use the arrow keys to navigate the save menu and enter to select ]";
         while(true)
         {
+            //selectedPath = Path.Combine(path,arrangedFiles[selectedX][selectedY]); selectedPath += ".txt";
+            Renderer.WriteCenterText(previewString, 13, ConsoleColor.Cyan, ConsoleColor.DarkCyan);
             keyStroke = Console.ReadKey(true);
-                if(keyStroke.Key == ConsoleKey.UpArrow && selectedY != 0)
+            if(keyStroke.Key == ConsoleKey.UpArrow && selectedY != 0)
+            {
+                    selectedY--;
+                    selectedPath = Path.Combine(path,arrangedFiles[selectedX][selectedY]); selectedPath += ".txt";
+                    Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
+                    previewString = Renderer.GetSavePreviewString(selectedPath);
+                    Renderer.ClearLine(13);
+                    Renderer.WriteCenterText(previewString, 13, ConsoleColor.Yellow, ConsoleColor.DarkYellow);
+            }
+            if(keyStroke.Key == ConsoleKey.DownArrow && selectedY != arrangedFiles[selectedX].Count() - 1)
+            {
+                    selectedY++;
+                    selectedPath = Path.Combine(path,arrangedFiles[selectedX][selectedY]); selectedPath += ".txt";
+                    Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
+                    previewString = Renderer.GetSavePreviewString(selectedPath);
+                    Renderer.ClearLine(13);
+                    Renderer.WriteCenterText(previewString, 13, ConsoleColor.Yellow, ConsoleColor.DarkYellow);
+            }
+            if(keyStroke.Key == ConsoleKey.RightArrow && selectedX != arrangedFiles.Count() - 1)
+            {
+                if(selectedY > arrangedFiles[^1].Count() - 1 & selectedX + 1 == arrangedFiles.IndexOf(arrangedFiles[^1]))
                 {
-                        selectedY--;
-                        Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
+                    
                 }
-                if(keyStroke.Key == ConsoleKey.DownArrow && selectedY != arrangedFiles[selectedX].Count() - 1)
+                else
                 {
-                        selectedY++;
-                        Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
+                    selectedX++;
+                    selectedPath = Path.Combine(path,arrangedFiles[selectedX][selectedY]); selectedPath += ".txt";
+                    Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
+                    previewString = Renderer.GetSavePreviewString(selectedPath);
+                    Renderer.ClearLine(13);
+                    Renderer.WriteCenterText(previewString, 13, ConsoleColor.Yellow, ConsoleColor.DarkYellow);
                 }
-                if(keyStroke.Key == ConsoleKey.RightArrow && selectedX != arrangedFiles.Count() - 1)
-                {
-                    if(selectedY > arrangedFiles[^1].Count() - 1 & selectedX + 1 == arrangedFiles.IndexOf(arrangedFiles[^1]))
-                    {
-                        
-                    }
-                    else
-                    {
-                        selectedX++;
-                        Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
-                    }
-                }
-                if(keyStroke.Key == ConsoleKey.LeftArrow && selectedX != 0)
-                {
-                        selectedX--;
-                        Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
-                }
-                if(keyStroke.Key == ConsoleKey.Enter)
-                {
-                    break;
-                }
-                Renderer.WriteCenterText(selectedX.ToString() + selectedY.ToString(),13, ConsoleColor.Red, ConsoleColor.DarkRed);
+            }
+            if(keyStroke.Key == ConsoleKey.LeftArrow && selectedX != 0)
+            {
+                    selectedX--;
+                    selectedPath = Path.Combine(path,arrangedFiles[selectedX][selectedY]); selectedPath += ".txt";
+                    Renderer.RenderSaveFiles(saveFilesLeft,saveFilesTop, selectedX,selectedY,arrangedFiles);
+                    previewString = Renderer.GetSavePreviewString(selectedPath);
+                    Renderer.ClearLine(13);
+                    Renderer.WriteCenterText(previewString, 13, ConsoleColor.Yellow, ConsoleColor.DarkYellow);
+            }
+            if(keyStroke.Key == ConsoleKey.Enter)
+            {
+                break;
+            }
         }
-        User player = User.CreateUserObject(path + $"/{arrangedFiles[selectedX][selectedY]}.txt");
+        User player = User.CreateUserObject(selectedPath);
         return new LoadedUser(player.Name, player.LuckyNumber,player.Chips);
     }
     internal static LoadedUser? CreateUserMenu()

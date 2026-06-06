@@ -7,31 +7,38 @@ internal class Renderer
     internal static (int,int) centerpointQ3 = (midpointX / 2, (int)(midpointY * 1.5));
     internal static (int,int) centerpointQ4 = ((int)(midpointX * 1.5), (int)(midpointY * 1.5));
 
-    public static void RefreshDisplay(LoadedUser player, int userScore, int dealerScore)
+    public static void RefreshDisplay(LoadedUser player, int userScore, int dealerScore, int selectedHand)
     {
         Console.Clear();
         Console.CursorVisible = false;
-        bool firstDeal = Program.DealerHand.Count() == 2;
         string gap = "              ";
         string persistentData = $"USER:  {player.Name.ToUpper()}"+ gap + $"BALANCE:   {player.Chips:C}";
         string dealerString = "DEALER HOLDS:    ";
         string playerString = "PLAYER HOLDS:    ";
-        if (firstDeal)
+        if (!Program.IsPlayerDone)
         {
-            dealerString += Program.DealerHand[0].ToString().Trim() + ", ??";
-            dealerString += $"  [ {Program.DealerHand[0].Evaluate()} ]";
+            dealerString += Program.DealerHand.Cards[0].ToString().Trim() + ", ??";
+            dealerString += $"  [ {Program.DealerHand.Cards[0].Evaluate()} ]";
         }
         else
         {
-            foreach(Card card in Program.DealerHand)
+            foreach(Card card in Program.DealerHand.Cards)
             {
-                dealerString += card.ToString() + ", ";
+                dealerString += card.ToString();
+                if(Program.DealerHand.Cards.IndexOf(card) != Program.DealerHand.Cards.Count() - 1)
+                {
+                    dealerString += ", ";
+                } 
             }
             dealerString += $"  [ {dealerScore} ]";
         }
-        foreach(Card card in Program.UserHand)
+        foreach(Card card in Program.UserHands[selectedHand].Cards)
         {
-            playerString += card.ToString() + ", ";
+            playerString += card.ToString();
+            if(Program.UserHands[selectedHand].Cards.IndexOf(card) != Program.UserHands[selectedHand].Cards.Count() - 1)
+                {
+                    playerString += ", ";
+                } 
         }
          playerString += $"  [ {userScore} ]";
         // --- drawing the dealer side of the screen
@@ -44,10 +51,10 @@ internal class Renderer
         DrawLine(0, 4 + dealerArtYOffset, Console.WindowWidth, '=', '=', ConsoleColor.Green, ConsoleColor.DarkGreen); //last top divider line
         int currentTop = Console.GetCursorPosition().Item2;
         WriteCenterText(dealerString,currentTop + 1, ConsoleColor.Green, ConsoleColor.DarkGreen); //dealer info
-        DrawLine(0, currentTop + 2, Console.WindowWidth, '~', '~', ConsoleColor.Green, ConsoleColor.DarkGreen); //last bottom divider line
+        //DrawLine(0, currentTop + 2, Console.WindowWidth, '~', '~', ConsoleColor.Green, ConsoleColor.DarkGreen); //last bottom divider line
         // --- drawing the player side fof the screen
         int userTopGUI = screenBottom - 5;
-        DrawLine(0, userTopGUI, Console.WindowWidth, '~', '~', ConsoleColor.Magenta, ConsoleColor.DarkMagenta); //first top divider
+        //DrawLine(0, userTopGUI, Console.WindowWidth, '~', '~', ConsoleColor.Magenta, ConsoleColor.DarkMagenta); //first top divider
         WriteCenterText(playerString, userTopGUI + 1, ConsoleColor.Magenta, ConsoleColor.DarkMagenta);
         DrawLine(0, userTopGUI + 2, Console.WindowWidth, '=', '=', ConsoleColor.Magenta, ConsoleColor.DarkMagenta); //first bottom divider
         DrawLine(0, screenBottom - 1, Console.WindowWidth, '=', '=', ConsoleColor.Magenta, ConsoleColor.DarkMagenta); //last top divider
@@ -172,65 +179,79 @@ internal class Renderer
         string clear = new string(' ', Console.WindowWidth);
         Console.Write(clear);
     }
-    internal static string GetInputString(bool spl, bool ins, int selectedAction, List<Program.Input> availableActions)
+    internal static string GetInputString(bool blackjack, int selectedAction, List<Program.Input> availableActions)
     {
         string space = "        ";
         string output = "";
-        if(selectedAction == (int)Program.Input.Hit && availableActions.Contains(Program.Input.Hit))
+        if (blackjack)
         {
-            output += "[x] Hit" + space;
+            return  "✪ [ WIN ] -- B L A C K J A C K ✪";
         }
-        else if(selectedAction != (int)Program.Input.Hit && availableActions.Contains(Program.Input.Hit))
+        if(selectedAction == (int)Program.Input.Hit 
+        && availableActions.Contains(Program.Input.Hit))
         {
-            output += "[ ] Hit" + space;
+            output += "[x] HIT" + space;
         }
-        else
+        else if(selectedAction != (int)Program.Input.Hit 
+        && availableActions.Contains(Program.Input.Hit))
         {
-                
-        }
-        if(selectedAction == (int)Program.Input.Stand && availableActions.Contains(Program.Input.Stand))
-        {
-            output += "[x] Stand" + space;
-        }
-        else if(selectedAction != (int)Program.Input.Stand && availableActions.Contains(Program.Input.Stand))
-        {
-            output += "[ ] Stand" + space;
+            output += "[ ] HIT" + space;
         }
         else
         {
                 
         }
-        if(selectedAction == (int)Program.Input.DoubleDown && availableActions.Contains(Program.Input.DoubleDown))
+        if(selectedAction == (int)Program.Input.Stand 
+        && availableActions.Contains(Program.Input.Stand))
         {
-            output += "[x] Double Down" + space;
+            output += "[x] STAND" + space;
         }
-        else if(selectedAction != (int)Program.Input.DoubleDown && availableActions.Contains(Program.Input.DoubleDown))
+        else if(selectedAction != (int)Program.Input.Stand 
+        && availableActions.Contains(Program.Input.Stand))
         {
-            output += "[ ] Double Down" + space;
-        }
-        else
-        {
-                
-        }
-        if(selectedAction == (int)Program.Input.Split && availableActions.Contains(Program.Input.Split))
-        {
-            output += "[x] Split" + space;
-        }
-        else if(selectedAction != (int)Program.Input.Split && availableActions.Contains(Program.Input.Split))
-        {
-            output += "[ ] Split" + space;
+            output += "[ ] STAND" + space;
         }
         else
         {
                 
         }
-        if(selectedAction == (int)Program.Input.Insurance && availableActions.Contains(Program.Input.Insurance))
+        if(selectedAction == (int)Program.Input.DoubleDown 
+        && availableActions.Contains(Program.Input.DoubleDown))
         {
-            output += "[x] Insurance" + space;
+            output += "[x] DOUBLE DOWN" + space;
         }
-        else if(selectedAction != (int)Program.Input.Insurance && availableActions.Contains(Program.Input.Insurance))
+        else if(selectedAction != (int)Program.Input.DoubleDown 
+        && availableActions.Contains(Program.Input.DoubleDown))
         {
-            output += "[ ] Insurance" + space;
+            output += "[ ] DOUBLE DOWN" + space;
+        }
+        else
+        {
+                
+        }
+        if(selectedAction == (int)Program.Input.Split 
+        && availableActions.Contains(Program.Input.Split))
+        {
+            output += "[x] SPLIT" + space;
+        }
+        else if(selectedAction != (int)Program.Input.Split 
+        && availableActions.Contains(Program.Input.Split))
+        {
+            output += "[ ] SPLIT" + space;
+        }
+        else
+        {
+                
+        }
+        if(selectedAction == (int)Program.Input.Insurance 
+        && availableActions.Contains(Program.Input.Insurance))
+        {
+            output += "[x] INSURANCE" + space;
+        }
+        else if(selectedAction != (int)Program.Input.Insurance 
+        && availableActions.Contains(Program.Input.Insurance))
+        {
+            output += "[ ] INSURANCE" + space;
         }
         else
         {
@@ -283,7 +304,7 @@ internal class Renderer
     public static int DrawLine(int left, int top, int length, 
     char symbol1, char symbol2, ConsoleColor c1, ConsoleColor c2)
     {
-        string line = new string('_',length);
+        //string line = new string('_',length);
         Console.SetCursorPosition(left, top);
         for(int j = 0; j < length; j++)
         {
@@ -299,6 +320,13 @@ internal class Renderer
             }
         } 
         return top;
+    }
+    public static string GetSavePreviewString(string path)
+    {
+        User? previewUser = User.CreateUserObject(path);
+        string previewString = $"[ {previewUser.Name} ] [ {previewUser.LuckyNumber} ] [ {previewUser.Chips:C} ]";
+        previewUser = null;
+        return previewString;
     }
     public static int DrawCenterpointLine(int left, int top, int length, 
     char symbol1, char symbol2, ConsoleColor c1, ConsoleColor c2)
