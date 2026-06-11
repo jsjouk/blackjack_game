@@ -13,7 +13,7 @@ It has been more difficult than planned to fix the Windows-only bug. Once I make
      
 TO RUN
 ------
-- Ensure you have .NET Core installed on your system
+- Ensure you have .NET installed on your system
 - After pulling the repository, navigate to ~/blackjack_game in your terminal
-- Ensure you are selecting the correct directory (command: ls)
+- Ensure you are selecting the directory (command: ls), you should see all of the .cs files
 - Run command: dotnet run
